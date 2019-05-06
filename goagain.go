@@ -264,7 +264,10 @@ func lookPath() (argv0 string, err error) {
 
 func setEnvs(l net.Listener) (fd uintptr, err error) {
 	v := reflect.ValueOf(l).Elem().FieldByName("fd").Elem()
-	fd = uintptr(v.FieldByName("sysfd").Int())
+	pfd := v.FieldByName("pfd")
+	sysfd := pfd.FieldByName("Sysfd")
+	intSysfd := sysfd.Int()
+	fd = uintptr(intSysfd)
 	_, _, e1 := syscall.Syscall(syscall.SYS_FCNTL, fd, syscall.F_SETFD, 0)
 	if 0 != e1 {
 		err = e1
